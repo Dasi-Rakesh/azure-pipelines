@@ -1,28 +1,35 @@
 # Maven
-- task: BrowserStackConfig@0
-  inputs:
-    BrowserStackServiceEndPoint: 'browserstack-connection'
-- task: BrowserStackResults@1
-  inputs:
-    browserstackProduct: 'automate'
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+jobs:
+- job: BrowserStackConfig
+  displayName: 'BrowserStack Config'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: BrowserStackConfig@0
+    inputs:
+      BrowserStackServiceEndPoint: 'browserstack-connection'
 
-trigger:
-- master
+- job: BrowserStackResults
+  displayName: 'BrowserStack Results'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: BrowserStackResults@1
+    inputs:
+      browserstackProduct: 'automate'
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+- job: BuildAndTest
+  displayName: 'Build and Test'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: Maven@3
+    inputs:
+      mavenPomFile: 'pom.xml'
+      mavenOptions: '-Xmx3072m'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.8'
+      jdkArchitectureOption: 'x64'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      goals: 'package'
